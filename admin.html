@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sotex - لوحة التحكم</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/logo.png">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Login Section -->
+    <div id="loginSection" class="min-h-screen flex items-center justify-center">
+        <div class="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-8">
+                <img src="/logo.png" alt="Sotex Logo" class="h-16 mx-auto mb-4">
+                <h1 class="text-2xl font-bold text-gray-800">لوحة التحكم</h1>
+                <p class="text-gray-500 mt-2">تسجيل الدخول للوصول إلى الطلبيات</p>
+            </div>
+            
+            <form id="loginForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold mb-2">البريد الإلكتروني</label>
+                    <input type="email" id="emailInput" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        placeholder="admin@example.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold mb-2">كلمة المرور</label>
+                    <input type="password" id="passwordInput" required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                        placeholder="••••••••">
+                </div>
+                <div id="loginError" class="text-red-500 text-sm hidden"></div>
+                <button type="submit" id="loginBtn"
+                    class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-lg transition duration-300">
+                    تسجيل الدخول
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Section -->
+    <div id="dashboardSection" class="hidden">
+        <!-- Navbar -->
+        <nav class="bg-white shadow-lg sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <img src="/logo.png" alt="Sotex Logo" class="h-10">
+                        <h1 class="text-xl font-bold text-orange-500">لوحة التحكم</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span id="adminEmail" class="text-gray-600 text-sm"></span>
+                        <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition duration-300">
+                            <i class="fas fa-sign-out-alt ml-2"></i>
+                            تسجيل الخروج
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Stats Cards -->
+        <div class="container mx-auto px-4 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">إجمالي الطلبيات</p>
+                            <p id="totalOrders" class="text-3xl font-bold text-gray-800">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-orange-500 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">قيد الانتظار</p>
+                            <p id="pendingOrders" class="text-3xl font-bold text-yellow-600">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-clock text-yellow-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">مكتملة</p>
+                            <p id="completedOrders" class="text-3xl font-bold text-green-600">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-500 text-sm">إجمالي المبيعات</p>
+                            <p id="totalSales" class="text-3xl font-bold text-blue-600">0</p>
+                        </div>
+                        <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                            <i class="fas fa-coins text-blue-600 text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Table -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-xl font-bold text-gray-800">
+                            <i class="fas fa-list-alt text-orange-500 ml-2"></i>
+                            قائمة الطلبيات
+                        </h2>
+                        <button id="refreshBtn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg transition duration-300">
+                            <i class="fas fa-sync-alt ml-2"></i>
+                            تحديث
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">التاريخ</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">الاسم</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">الهاتف</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">الولاية</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">البلدية</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">العنوان</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">الكمية</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">التوصيل</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">المجموع</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">الحالة</th>
+                                <th class="px-6 py-4 text-right text-sm font-semibold text-gray-600">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody" class="divide-y divide-gray-200">
+                            <!-- Orders will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div id="noOrders" class="hidden p-12 text-center">
+                    <i class="fas fa-inbox text-gray-300 text-6xl mb-4"></i>
+                    <p class="text-gray-500 text-lg">لا توجد طلبيات حتى الآن</p>
+                </div>
+                
+                <div id="loadingOrders" class="p-12 text-center">
+                    <i class="fas fa-spinner fa-spin text-orange-500 text-4xl mb-4"></i>
+                    <p class="text-gray-500">جاري تحميل الطلبيات...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { 
+            auth, 
+            db, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged,
+            collection, 
+            getDocs, 
+            query, 
+            orderBy,
+            doc,
+            deleteDoc
+        } from './firebase-config.js';
+
+        // DOM Elements
+        const loginSection = document.getElementById('loginSection');
+        const dashboardSection = document.getElementById('dashboardSection');
+        const loginForm = document.getElementById('loginForm');
+        const loginError = document.getElementById('loginError');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const adminEmail = document.getElementById('adminEmail');
+        const ordersTableBody = document.getElementById('ordersTableBody');
+        const loadingOrders = document.getElementById('loadingOrders');
+        const noOrders = document.getElementById('noOrders');
+
+        // Stats elements
+        const totalOrdersEl = document.getElementById('totalOrders');
+        const pendingOrdersEl = document.getElementById('pendingOrders');
+        const completedOrdersEl = document.getElementById('completedOrders');
+        const totalSalesEl = document.getElementById('totalSales');
+
+        // Auth state listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                loginSection.classList.add('hidden');
+                dashboardSection.classList.remove('hidden');
+                adminEmail.textContent = user.email;
+                loadOrders();
+            } else {
+                loginSection.classList.remove('hidden');
+                dashboardSection.classList.add('hidden');
+            }
+        });
+
+        // Login form handler
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+            
+            const loginBtn = document.getElementById('loginBtn');
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري تسجيل الدخول...';
+            loginBtn.disabled = true;
+            loginError.classList.add('hidden');
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                console.error('Login error:', error);
+                loginError.textContent = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
+                loginError.classList.remove('hidden');
+                loginBtn.innerHTML = 'تسجيل الدخول';
+                loginBtn.disabled = false;
+            }
+        });
+
+        // Logout handler
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        });
+
+        // Refresh button handler
+        refreshBtn.addEventListener('click', loadOrders);
+
+        // Delete order handler (event delegation)
+        ordersTableBody.addEventListener('click', async (event) => {
+            const deleteBtn = event.target.closest('[data-action="delete-order"]');
+            if (!deleteBtn) return;
+
+            const orderId = deleteBtn.dataset.orderId;
+            if (!orderId) return;
+
+            const confirmed = confirm('هل أنت متأكد من حذف هذه الطلبية؟');
+            if (!confirmed) return;
+
+            deleteBtn.disabled = true;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> جاري الحذف...';
+
+            try {
+                await deleteDoc(doc(db, 'orders', orderId));
+                // Remove row immediately and reload stats
+                deleteBtn.closest('tr').remove();
+                loadOrders();
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('تعذر حذف الطلبية. حاول مرة أخرى.');
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = '<i class="fas fa-trash ml-2"></i> حذف';
+            }
+        });
+
+        // Load orders from Firestore
+        async function loadOrders() {
+            loadingOrders.classList.remove('hidden');
+            noOrders.classList.add('hidden');
+            ordersTableBody.innerHTML = '';
+
+            try {
+                const ordersRef = collection(db, 'orders');
+                const q = query(ordersRef, orderBy('createdAt', 'desc'));
+                const querySnapshot = await getDocs(q);
+
+                const orders = [];
+                querySnapshot.forEach((doc) => {
+                    orders.push({ id: doc.id, ...doc.data() });
+                });
+
+                loadingOrders.classList.add('hidden');
+
+                if (orders.length === 0) {
+                    noOrders.classList.remove('hidden');
+                    updateStats([]);
+                    return;
+                }
+
+                // Render orders
+                orders.forEach((order) => {
+                    const row = createOrderRow(order);
+                    ordersTableBody.appendChild(row);
+                });
+
+                updateStats(orders);
+
+            } catch (error) {
+                console.error('Error loading orders:', error);
+                loadingOrders.classList.add('hidden');
+                ordersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="px-6 py-12 text-center text-red-500">
+                            <i class="fas fa-exclamation-circle text-4xl mb-4"></i>
+                            <p>حدث خطأ في تحميل الطلبيات</p>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Create order table row
+        function createOrderRow(order) {
+            const row = document.createElement('tr');
+            row.className = 'hover:bg-gray-50 transition-colors';
+
+            const date = order.createdAt ? new Date(order.createdAt.seconds * 1000).toLocaleDateString('ar-DZ', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) : 'غير محدد';
+
+            const deliveryType = order.deliveryType === 'office' ? 'مكتب' : 'منزل';
+            const statusClass = order.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700';
+            const statusText = order.status === 'completed' ? 'مكتمل' : 'قيد الانتظار';
+
+            row.innerHTML = `
+                <td class="px-6 py-4 text-sm text-gray-600">${date}</td>
+                <td class="px-6 py-4 text-sm font-semibold text-gray-800">${order.name || '-'}</td>
+                <td class="px-6 py-4 text-sm text-gray-600 font-mono">${order.phone || '-'}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${order.wilaya || '-'}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${order.baladiya || '-'}</td>
+                <td class="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">${order.address || '-'}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${order.area || '-'} م²</td>
+                <td class="px-6 py-4 text-sm text-gray-600">${deliveryType}</td>
+                <td class="px-6 py-4 text-sm font-bold text-orange-600">${order.total || '-'}</td>
+                <td class="px-6 py-4">
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusClass}">
+                        ${statusText}
+                    </span>
+                </td>
+                <td class="px-6 py-4 text-sm">
+                    <button 
+                        class="delete-order-btn bg-red-50 text-red-600 hover:bg-red-100 px-4 py-2 rounded-lg font-semibold flex items-center gap-2 transition-all"
+                        data-action="delete-order"
+                        data-order-id="${order.id}"
+                    >
+                        <i class="fas fa-trash"></i>
+                        حذف
+                    </button>
+                </td>
+            `;
+
+            return row;
+        }
+
+        // Update statistics
+        function updateStats(orders) {
+            const total = orders.length;
+            const pending = orders.filter(o => o.status !== 'completed').length;
+            const completed = orders.filter(o => o.status === 'completed').length;
+            
+            let totalSales = 0;
+            orders.forEach(order => {
+                const amount = parseInt(order.total?.replace(/[^\d]/g, '')) || 0;
+                totalSales += amount;
+            });
+
+            totalOrdersEl.textContent = total;
+            pendingOrdersEl.textContent = pending;
+            completedOrdersEl.textContent = completed;
+            totalSalesEl.textContent = totalSales.toLocaleString('ar-DZ') + ' د.ج';
+        }
+    </script>
+</body>
+</html>

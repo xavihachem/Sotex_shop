@@ -1,3 +1,6 @@
+// Firebase imports
+import { db, collection, addDoc, serverTimestamp } from './firebase-config.js';
+
 // Image Gallery with Auto-Rotate
 let currentImageIndex = 0;
 const images = [
@@ -272,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// Form submission with email integration
+// Form submission with Firebase Firestore
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('form').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -305,24 +308,19 @@ document.addEventListener('DOMContentLoaded', () => {
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> جاري الإرسال...';
             submitBtn.disabled = true;
             
-            const response = await fetch('/api/order', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData)
-            });
+            // Save order to Firebase Firestore
+            const orderData = {
+                ...formData,
+                status: 'pending',
+                createdAt: serverTimestamp()
+            };
             
-            const result = await response.json();
+            await addDoc(collection(db, 'orders'), orderData);
             
-            if (result.success) {
-                showSuccessModal();
-                document.querySelector('form').reset();
-                document.getElementById('phoneSuccess').classList.add('hidden');
-                document.getElementById('phoneInput').classList.remove('border-green-500');
-            } else {
-                alert('❌ ' + result.message);
-            }
+            showSuccessModal();
+            document.querySelector('form').reset();
+            document.getElementById('phoneSuccess').classList.add('hidden');
+            document.getElementById('phoneInput').classList.remove('border-green-500');
             
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
@@ -337,3 +335,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// Expose functions to global scope for inline HTML handlers
+window.changeImage = changeImage;
+window.nextImage = nextImage;
+window.previousImage = previousImage;
+window.validatePhone = validatePhone;
+window.selectDelivery = selectDelivery;
+window.updatePriceByLength = updatePriceByLength;
+window.updateBaladiyat = updateBaladiyat;
+window.showSuccessModal = showSuccessModal;
+window.closeSuccessModal = closeSuccessModal;
